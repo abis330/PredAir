@@ -1,4 +1,5 @@
-# Air-Pollution-Forecasting-using-Recurrent-Neural-Networks
+# Air-Pollution-Forecasting-using-Machine-Learning (APF Model)
+
 First step towards solving a real-life problem - air pollution forecasting in Delhi, using deep learning
 
 Will implement the following versions of the APF (Air Pollution Forecasting) Model:
