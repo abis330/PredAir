@@ -96,7 +96,7 @@ def test(para, sess, model, test_data_generator):
             all_labels.append(labels)
             count += 1
             n_samples += np.prod(outputs.shape)
-        except tf.errors.UnknownError:
+        except :
             break
     all_outputs = np.concatenate(all_outputs)
     all_labels = np.concatenate(all_labels)
