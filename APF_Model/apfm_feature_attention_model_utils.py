@@ -4,18 +4,18 @@ import logging
 import tensorflow as tf
 import argparse
 import json
-from apfm_feature_attention_model import PolyRNN
+from apfm_feature_attention_model import Model
 
 
 def params_setup():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--attention_len', type=int, default=50)
+    parser.add_argument('--attention_len', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=72)
     parser.add_argument('--filename', type=str, default='traffic')
     parser.add_argument('--decay', type=int, default=0)
-    parser.add_argument('--keep_prob', type=float, default=0.2)
+    parser.add_argument('--keep_prob', type=float, default=0.75)
     parser.add_argument('--file_output', type=int, default=1)
-    parser.add_argument('--highway', type=int, default=0)
+    # parser.add_argument('--highway', type=int, default=0)
     parser.add_argument('--horizon', type=int, default=1)
     parser.add_argument('--init_weight', type=float, default=0.1)
     parser.add_argument('--learning_rate', type=float, default=1e-5)
@@ -24,7 +24,7 @@ def params_setup():
     parser.add_argument('--model_dir', type=str, default='./models/model')
     parser.add_argument('--graph_dir', type=str, default='./models/graphs')
     parser.add_argument('--num_epochs', type=int, default=10)
-    parser.add_argument('--num_layers', type=int, default=2)
+    parser.add_argument('--num_layers', type=int, default=1)
     parser.add_argument('--num_units', type=int, default=128)
 
     para = parser.parse_args()
@@ -39,7 +39,7 @@ def params_setup():
         pass
 
     json_path = para.model_dir + '/parameters.json'
-    json.dump(vars)
+    # json.dump(vars)
     json.dump(vars(para), open(json_path, 'w'), indent=4)
     return para
 
@@ -65,11 +65,11 @@ def config_setup():
 
 
 def create_data_generator(para):
-    if para.mts:
-        from apfm_feature_attention_data_generator import TimeSeriesDataGenerator
-        return TimeSeriesDataGenerator(para)
-    else:
-        raise ValueError('data_set {} is unknown'.format(para.data_set))
+    # if para.mts:
+    from apfm_feature_attention_data_generator import TimeSeriesDataGenerator
+    return TimeSeriesDataGenerator(para)
+    # else:
+    #     raise ValueError('data_set {} is unknown'.format(para.data_set))
 
 
 def create_graph(para):
@@ -79,7 +79,7 @@ def create_graph(para):
                                                     para.init_weight)
         data_generator = create_data_generator(para)
         with tf.variable_scope('model', initializer=initializer):
-            model = PolyRNN(para, data_generator)
+            model = Model(para, data_generator)
     return graph, model, data_generator
 
 
@@ -117,6 +117,7 @@ def print_num_of_trainable_parameters():
             variable_parameters *= dim.value
         total_parameters += variable_parameters
     logging.info('# of trainable parameters: %d' % total_parameters)
+
 
 def create_dir(path):
     try:

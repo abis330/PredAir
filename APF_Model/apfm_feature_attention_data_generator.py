@@ -12,18 +12,18 @@ from apfm_feature_attention_model_utils import create_dir
 
 class DataGenerator(metaclass=ABCMeta):
     def __init__(self, para):
-        self.DIRECTORY = para.model_dir + "/data"
+        self.directory = para.model_dir + "/data"
+        self.h = para.horizon
+        self.data_path = os.path.join(self.directory, str(self.h))
         self.para = para
         self.iterator = None
-        para.max_len = self.MAX_LEN = 16
+        para.max_len = self.max_len = 16
 
-    def inputs(self, mode, batch_size, num_epochs=None):
+    def inputs(self, mode, batch_size):
         """Reads input data num_epochs times.
         Args:
         mode: String for the corresponding tfrecords ('train', 'validation', 'test')
         batch_size: Number of examples per returned batch.
-        num_epochs: Number of times to read the input data, or 0/None to
-        train forever.
         Returns:
         A tuple (images, labels), where:
         * images is a float tensor with shape [batch_size, 28, 28]
@@ -35,10 +35,9 @@ class DataGenerator(metaclass=ABCMeta):
         required.
         """
         if mode != "train" and mode != "validation" and mode != "test":
-            raise ValueError("mode: {} while mode should be "
-                             "'train', 'validation', or 'test'".format(mode))
+            raise ValueError("mode: {} while mode should be ""'train', 'validation', or 'test'".format(mode))
 
-        filename = self.DATA_PATH + "/" + mode + ".tfrecords"
+        filename = self.data_path + "/" + mode + ".tfrecords"
         logging.info("Loading data from {}".format(filename))
 
         with tf.name_scope("input"):
@@ -93,10 +92,7 @@ class DataGenerator(metaclass=ABCMeta):
 class TimeSeriesDataGenerator(DataGenerator):
     def __init__(self, para):
         DataGenerator.__init__(self, para)
-        self.h = para.horizon
-        self.DATA_PATH = os.path.join(self.DIRECTORY,
-                                      para.data_set + str(self.h))
-        create_dir(self.DATA_PATH)
+        create_dir(self.data_path)
         self.split = [0, 0.8, 0.98, 1]
         self.split_names = ["train", "validation", "test"]
         self._preprocess(para)
@@ -148,7 +144,7 @@ class TimeSeriesDataGenerator(DataGenerator):
     def _convert_to_tfrecords(self, st, ed, name):
         st = int(self.dat.shape[0] * st)
         ed = int(self.dat.shape[0] * ed)
-        out_fn = os.path.join(self.DATA_PATH, name + ".tfrecords")
+        out_fn = os.path.join(self.data_path, name + ".tfrecords")
         if os.path.exists(out_fn):
             return
         with tf.python_io.TFRecordWriter(out_fn) as record_writer:
@@ -182,8 +178,7 @@ class TimeSeriesDataGenerator(DataGenerator):
                 tf.FixedLenFeature([self.OUTPUT_SIZE], tf.float32),
             },
         )
-        rnn_input = tf.to_float(
-            tf.reshape(example["x"], (self.MAX_LEN, self.INPUT_SIZE)))
+        rnn_input = tf.to_float(tf.reshape(example["x"], (self.MAX_LEN, self.INPUT_SIZE)))
         rnn_input_len = tf.constant(self.MAX_LEN, dtype=tf.int32)
         target_output = tf.expand_dims(tf.to_float(example["y"]), 0)
         target_output = tf.tile(target_output, [self.MAX_LEN, 1])
