@@ -5,7 +5,7 @@ from tensorflow.python.ops import rnn_cell_impl
 from tensorflow.python.util import nest
 
 
-class TemporalPatternAttentionMechanism():
+class TemporalPatternAttentionMechanism:
     def __call__(self, query, attn_states, attn_size, attn_length,
                  attn_vec_size):
         """
@@ -96,7 +96,7 @@ class TemporalPatternAttentionCellWrapper(rnn_cell_impl.RNNCell):
                 "%s: Using a concatenated state is slower and will soon be "
                 "deprecated.    Use state_is_tuple=True.", self)
         if attn_size is None:
-            attn_size = cell.output_size
+            attn_size = cell.output_size  # implies the number of units in hidden state of RNN cell passed
         if attn_vec_size is None:
             attn_vec_size = attn_size
         self._state_is_tuple = state_is_tuple
@@ -138,8 +138,7 @@ class TemporalPatternAttentionCellWrapper(rnn_cell_impl.RNNCell):
         input_size = self._input_size
         if input_size is None:
             input_size = inputs.get_shape().as_list()[1]
-        inputs = dense(
-            tf.concat([inputs, attns], 1), input_size, use_bias=True)
+        inputs = dense(tf.concat([inputs, attns], 1), input_size, use_bias=True)
         lstm_output, new_state = self._cell(inputs, state)
 
         if self._state_is_tuple:

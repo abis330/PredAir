@@ -132,7 +132,7 @@ if __name__ == '__main__':
         utils.load_weights(params, session, apfm_model)
         utils.print_num_of_trainable_parameters()
         # writer instance to write training summary to TensorBoard
-        train_writer = tf.summary.FileWriter(params.graph_dir + 'training', session.graph)
+        train_writer = tf.summary.FileWriter(params.graph_dir + '/training', session.graph)
         try:
             if params.mode == 'train':
                 train(params, session, apfm_model, data_generator, train_writer)

@@ -21,7 +21,7 @@ def params_setup():
     parser.add_argument('--learning_rate', type=float, default=1e-5)
     parser.add_argument('--max_gradient_norm', type=float, default=5.0)
     parser.add_argument('--mode', type=str, default='train')
-    parser.add_argument('--model_dir', type=str, default='./models/model')
+    parser.add_argument('--model_dir', type=str, default='./models/checkpoints')
     parser.add_argument('--graph_dir', type=str, default='./models/graphs')
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument('--num_layers', type=int, default=1)
